@@ -31,13 +31,14 @@ data2015 = filter table4 by ($0 matches '2015');
 tb5 = foreach data2015 generate $0,$2;
 data2016 = filter table4 by ($0 matches '2016');
 tb6 = foreach data2016 generate $0,$2;
-table5 =join  by $0,
+table5 = join  by tb1 by $0,join  by tb2 by $0,join  by tb3 by $0,join  by tb4 by $0,join  by tb5 by $0,join  by tb6 by $0;
 table6 = foreach table5 generate $1,(float)($7-$6)*100/$6,(float)($6-$5)*100/$5,
 (float)($5-$4)*100/$4,(float)($4-$3)*100/$3,
 (float)($3-$2)*100/$2;
 table7 = foreach table6 generate $0,($1+$2+$3+$4+$5)/5 as avg_growth;
 table8 = order table7 by growth desc;
 final_table = limit table8 5;
+dump final_table;
 
 
 
