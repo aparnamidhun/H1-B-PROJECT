@@ -23,7 +23,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 			System.out.printf("%f,%f",sucess,total);
 			double sucess_rate = (sucess/total)*100;
 			if (sucess_rate >= 70 && total >=1000){
-				String output = key.toString() +","+String.format("%.0f",total)+","+String.format("%.2f %%",sucess_rate);
+				String output = key.toString() +" "+String.format("%.0f",total)+" "+String.format("%.2f",sucess_rate);
 				top10.put(sucess_rate, output);				
 			}
 		}
