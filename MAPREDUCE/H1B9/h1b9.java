@@ -15,7 +15,7 @@ public class h1b9 {
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException{
 		Configuration conf = new Configuration();
-		  conf.set("mapreduce.output.textoutputformat.separator", ",");
+		  //conf.set("mapreduce.output.textoutputformat.separator", ",");
 		  Job job = Job.getInstance(conf, "h1b9");
 		  job.setJarByClass(h1b9.class);
 		  job.setMapperClass(MapClass.class);
