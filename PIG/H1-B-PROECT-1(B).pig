@@ -1,8 +1,7 @@
 --1 b) Find top 5 job titles who are having highest growth in applications.
-
-REGISTER /home/hduser/DatasetsandCodes/PIG/piggybank.jar;  --
-DEFINE pigloader org.apache.pig.piggybank.storage.CSVExcelStorage();
-table1 = load '/home/hduser/h1b_kaggle.csv' using pigloader() as
+REGISTER '/home/hduser/DatasetsandCodes/PIG/piggybank.jar'; 
+DEFINE CSVExcelStorage org.apache.pig.piggybank.storage.CSVExcelStorage;   
+data = LOAD '/home/hduser/h1b_kaggle.csv' USING CSVExcelStorage() as 
 (s_no:int,
 case_status:chararray,
 employer_name:chararray,
@@ -13,33 +12,55 @@ prevailing_wage:int,
 year:chararray,
 worksite:chararray,
 longitute:double,
-latitute:double);                      --load the data into table
-noheader = filter table1 by $0 > 0;     --remove the header
-table2 = order noheader by $0;       --order table by s_no
-table3 = group table2 by (year,job_title);
-table4 = FOREACH table5 GENERATE
-    FLATTEN(group) AS (year,job_title),COUNT(table2.case_status);
-data2011 = filter table4 by ($0 matches '2011');
-tb1 =foreach data2011 generate $2;
-data2012 = filter table4 by ($0 matches '2012');
-tb2 = foreach data2012 generate $0,$2;
-data2013 = filter table4 by ($0 matches '2013');
-tb3 =foreach data2013 generate $0,$2;
-data2014 = filter table4 by ($0 matches '2014');
-tb4 = foreach data2014 generate $0,$2;
-data2015 = filter table4 by ($0 matches '2015');
-tb5 = foreach data2015 generate $0,$2;
-data2016 = filter table4 by ($0 matches '2016');
-tb6 = foreach data2016 generate $0,$2;
-table5 = join  by tb1 by $0,join  by tb2 by $0,join  by tb3 by $0,join  by tb4 by $0,join  by tb5 by $0,join  by tb6 by $0;
-table6 = foreach table5 generate $1,(float)($7-$6)*100/$6,(float)($6-$5)*100/$5,
-(float)($5-$4)*100/$4,(float)($4-$3)*100/$3,
-(float)($3-$2)*100/$2;
-table7 = foreach table6 generate $0,($1+$2+$3+$4+$5)/5 as avg_growth;
-table8 = order table7 by growth desc;
-final_table = limit table8 5;
-dump final_table;
+latitute:double);			
+noheader= filter data by $0>=1;		 
 
+cleansed= filter noheader  by $7 matches '2011'; 
+a= group cleansed by $4;								
+step_a= foreach a generate group,COUNT($1);				
+
+
+cleansed= filter noheader  by $7 matches '2012'; 
+a= group cleansed by $4;								
+step_b= foreach a generate group,COUNT($1);				
+
+
+cleansed= filter noheader  by $7 matches '2013';
+a= group cleansed by $4;								
+step_c= foreach a generate group,COUNT($1);				
+
+
+cleansed= filter noheader  by $7 matches '2014'; 
+a= group cleansed by $4;								
+step_d= foreach a generate group,COUNT($1);				
+
+cleansed= filter noheader  by $7 matches '2015';
+a= group cleansed by $4;								
+step_e= foreach a generate group,COUNT($1);				
+
+
+cleansed= filter noheader  by $7 matches '2016'; 
+a= group cleansed by $4;								
+step_f= foreach a generate group,COUNT($1);				
+
+
+joined= join step_a by $0,step_b by $0,step_c by $0,step_d by $0,step_e by $0,step_f by $0;
+yearwiseapplications= foreach joined generate $0,$1,$3,$5,$7,$9,$11;
+
+
+
+progressivegrowth= foreach yearwiseapplications  generate $0,
+(float)($6-$5)*100/$5,(float)($5-$4)*100/$4,
+(float)($4-$3)*100/$3,(float)($3-$2)*100/$2,
+(float)($2-$1)*100/$1;
+
+
+avgprogressivegrowth= foreach progressivegrowth generate $0,($1+$2+$3+$4+$5)/5;
+
+orderedavggrowth= order avgprogressivegrowth by $1 desc;
+
+answer = limit orderedavggrowth  5;
+dump answer;
 
 
 
